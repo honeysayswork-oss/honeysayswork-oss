@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Honey Kumar | honeysayswork-oss</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet"/>
+<style>
+/* ═══════════════════════════ VARIABLES ═══════════════════════════ */
+:root{
+  --bg:#0d1117; --bg2:#161b22; --bg3:#21262d;
+  --green:#00ff41; --green2:#00cc33;
+  --blue:#58a6ff; --orange:#f0a500; --purple:#a371f7;
+  --text:#c9d1d9; --dim:#8b949e; --border:#30363d;
+  --walk-dur:0.55s;   /* JS changes this on scroll speed */
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);color:var(--text);
+  font-family:'Share Tech Mono',monospace;overflow-x:hidden;
+}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg)}
+::-webkit-scrollbar-thumb{background:var(--green);border-radius:3px}
+a{color:var(--green);text-decoration:none}
+
+/* ═══════════════════════════ MATRIX BG ═══════════════════════════ */
+#matrix{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  z-index:0;opacity:.06;pointer-events:none;
+}
+
+/* ═══════════════════════════ NAV ═══════════════════════════ */
+nav{
+  position:fixed;top:0;left:0;width:100%;z-index:9999;
+  background:rgba(13,17,23,.92);border-bottom:1px solid var(--border);
+  backdrop-filter:blur(12px);display:flex;align-items:center;
+  justify-content:space-between;padding:10px 24px;
+}
+.nav-logo{display:flex;align-items:center;gap:10px;color:var(--green);font-size:14px;font-weight:700}
+.nav-links{display:flex;gap:20px;list-style:none}
+.nav-links a{font-size:12px;color:var(--dim);transition:color .2s}
+.nav-links a:hover,.nav-links a.active{color:var(--green)}
+
+/* ══════════════════════════════════════════════════════════════════
+   WALKING CHARACTERS — fixed to viewport sides, literally walk with you
+══════════════════════════════════════════════════════════════════ */
+
+/* Shared character wrapper */
+.walker{
+  position:fixed;
+  bottom:0;          /* stand on the "floor" of the viewport */
+  z-index:9000;
+  pointer-events:none;
+  display:flex;flex-direction:column;align-items:center;
+  transition:opacity .6s ease;
+}
+.walker-label{
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px;color:var(--green);letter-spacing:1px;
+  margin-bottom:6px;opacity:.7;text-align:center;
+  background:rgba(13,17,23,.6);padding:2px 6px;border-radius:3px;
+}
+
+/* Ground line */
+.walker::after{
+  content:'';display:block;width:100%;height:2px;
+  background:linear-gradient(90deg,transparent,var(--green),transparent);
+  opacity:.25;margin-top:4px;
+}
+
+/* XLR8 — left side */
+#xlr8-walker{left:18px}
+
+/* Creeper — right side */
+#creeper-walker{right:18px}
+
+/* Alien X — appears mid-scroll, floats above */
+#alienx-walker{
+  right:28px;bottom:auto;
+  top:50%;transform:translateY(-50%);
+  opacity:0;transition:opacity .8s ease;
+}
+#alienx-walker.visible{opacity:1}
+
+/* Hide walkers on narrow screens */
+@media(max-width:1050px){
+  .walker{display:none}
+}
+
+/* ─────────── XLR8 WALK ANIMATIONS ─────────── */
+.xlr8-body-wrap{
+  animation:xlr8Bob var(--walk-dur) ease-in-out infinite alternate;
+}
+@keyframes xlr8Bob{
+  from{transform:translateY(0) rotate(-2deg)}
+  to  {transform:translateY(-8px) rotate(1deg)}
+}
+.xlr8-speed-line{
+  animation:xlr8Speed var(--walk-dur) ease-in-out infinite alternate;
+  transform-origin:right center;
+}
+@keyframes xlr8Speed{
+  from{opacity:1;transform:scaleX(1)}
+  to  {opacity:.2;transform:scaleX(.3)}
+}
+/* Legs */
+.xlr8-leg-l{
+  transform-origin:50% 0%;
+  animation:xlr8LegL var(--walk-dur) ease-in-out infinite alternate;
+}
+.xlr8-leg-r{
+  transform-origin:50% 0%;
+  animation:xlr8LegR var(--walk-dur) ease-in-out infinite alternate;
+}
+@keyframes xlr8LegL{from{transform:rotate(-30deg)}to{transform:rotate(25deg)}}
+@keyframes xlr8LegR{from{transform:rotate(25deg)}to{transform:rotate(-30deg)}}
+/* Tail wag */
+.xlr8-tail{
+  animation:xlr8Tail calc(var(--walk-dur)*1.3) ease-in-out infinite alternate;
+  transform-origin:90% 20%;
+}
+@keyframes xlr8Tail{
+  from{transform:rotate(-15deg)}
+  to  {transform:rotate(20deg)}
+}
+
+/* ─────────── CREEPER WALK ANIMATIONS ─────────── */
+.creeper-body-wrap{
+  animation:creeperBob calc(var(--walk-dur)*1.1) ease-in-out infinite alternate;
+}
+@keyframes creeperBob{
+  from{transform:translateY(0)}
+  to  {transform:translateY(-5px)}
+}
+/* Creeper has 4 legs — 2 diagonals move together */
+.creeper-leg-fl,.creeper-leg-br{
+  transform-origin:50% 0%;
+  animation:creeperLegA calc(var(--walk-dur)*1.1) ease-in-out infinite alternate;
+}
+.creeper-leg-fr,.creeper-leg-bl{
+  transform-origin:50% 0%;
+  animation:creeperLegB calc(var(--walk-dur)*1.1) ease-in-out infinite alternate;
+}
+@keyframes creeperLegA{from{transform:rotate(-18deg)}to{transform:rotate(18deg)}}
+@keyframes creeperLegB{from{transform:rotate(18deg)}to{transform:rotate(-18deg)}}
+
+/* ─────────── ALIEN X FLOAT ─────────── */
+.ax-wrap{animation:axFloat 2.4s ease-in-out infinite}
+@keyframes axFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+.ax-aura{animation:axAura 2.4s ease-in-out infinite}
+@keyframes axAura{0%,100%{opacity:.2}50%{opacity:.7}}
+.ax-stars{animation:axStars 1.8s ease-in-out infinite}
+@keyframes axStars{0%,100%{opacity:.5}50%{opacity:1}}
+
+/* Omnitrix spin in nav logo */
+.spin{animation:spin 3s linear infinite;transform-origin:center}
+@keyframes spin{to{transform:rotate(360deg)}}
+.glow{animation:glow 2s ease-in-out infinite}
+@keyframes glow{
+  0%,100%{filter:drop-shadow(0 0 6px #00ff41)}
+  50%{filter:drop-shadow(0 0 20px #00ff41)drop-shadow(0 0 35px #00cc33)}
+}
+
+/* ═══════════════════════════ SECTIONS ═══════════════════════════ */
+section{
+  position:relative;z-index:1;
+  padding:90px 20px 60px;max-width:820px;margin:0 auto;
+}
+.sec-eyebrow{font-size:11px;color:var(--green);letter-spacing:3px;margin-bottom:6px}
+.sec-title{font-size:22px;color:#fff;margin-bottom:28px}
+.sec-title span{color:var(--green)}
+.reveal{opacity:0;transform:translateY(28px);transition:opacity .6s ease,transform .6s ease}
+.reveal.show{opacity:1;transform:translateY(0)}
+
+/* ═══════════════════════════ MINECRAFT CARDS ═══════════════════════════ */
+.mc-card{
+  background:var(--bg2);border:2px solid var(--border);border-radius:4px;
+  overflow:hidden;margin-bottom:18px;transition:border-color .3s,box-shadow .3s;
+}
+.mc-card:hover{border-color:var(--green);box-shadow:0 0 18px rgba(0,255,65,.1)}
+.mc-head{
+  display:flex;align-items:center;gap:10px;padding:10px 18px;
+  background:var(--bg3);border-bottom:2px solid var(--border);
+  font-size:13px;letter-spacing:.5px;
+}
+.mc-body{padding:20px 22px}
+.wood .mc-head{background:linear-gradient(135deg,#7d5a28,#5c4020,#7d5a28);color:#f5deb3;border-color:#5c4020}.wood{border-color:#7d5a28}
+.stone .mc-head{background:linear-gradient(135deg,#666,#444,#666);color:#ccc;border-color:#444}.stone{border-color:#666}
+.grass .mc-head{background:linear-gradient(135deg,#567d46,#3d5c30,#567d46);color:#d4f5b4;border-color:#3d5c30}.grass{border-color:#567d46}
+.diamond .mc-head{background:linear-gradient(135deg,#1e9eb5,#157a8c,#1e9eb5);color:#adf6ff;border-color:#157a8c}.diamond{border-color:#1e9eb5}
+.gold .mc-head{background:linear-gradient(135deg,#f0a500,#c47800,#f0a500);color:#fff4c2;border-color:#c47800}.gold{border-color:#f0a500}
+.nether .mc-head{background:linear-gradient(135deg,#4a4a4a,#2d2d2d,#4a4a4a);color:#a371f7;border-color:#2d2d2d}.nether{border-color:#4a4a4a}
+
+/* ═══════════════════════════ HERO ═══════════════════════════ */
+#hero{
+  min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;text-align:center;
+  padding:80px 20px 40px;max-width:100%;
+  background:radial-gradient(ellipse at center,rgba(0,80,30,.12) 0%,transparent 68%);
+}
+.hero-name{
+  font-size:clamp(2.2rem,7vw,5rem);color:#fff;letter-spacing:3px;
+  text-shadow:0 0 40px rgba(0,255,65,.25);margin-bottom:8px;
+}
+.hero-alias{font-size:16px;color:var(--green);margin-bottom:18px}
+.hero-sub{font-size:13px;color:var(--dim);max-width:560px;line-height:1.9;margin-bottom:28px}
+.term{
+  font-size:13px;color:var(--green);background:var(--bg2);
+  border:1px solid var(--green);border-radius:8px;
+  padding:14px 20px;max-width:560px;width:100%;text-align:left;
+  box-shadow:0 0 20px rgba(0,255,65,.12);
+}
+.term-p{color:var(--dim)}
+#typed::after{content:'█';animation:blink .75s step-end infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.hero-badges{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:22px}
+.badge{font-size:11px;padding:4px 12px;border-radius:4px;border:1px solid;cursor:default}
+.bg{border-color:var(--green);color:var(--green);background:rgba(0,255,65,.07)}
+.bb{border-color:var(--blue);color:var(--blue);background:rgba(88,166,255,.07)}
+.bo{border-color:var(--orange);color:var(--orange);background:rgba(240,165,0,.07)}
+.bp{border-color:var(--purple);color:var(--purple);background:rgba(163,113,247,.07)}
+.shint{margin-top:40px;color:var(--dim);font-size:11px;display:flex;flex-direction:column;align-items:center;gap:5px;animation:shint 2s ease-in-out infinite}
+@keyframes shint{0%,100%{transform:translateY(0)}50%{transform:translateY(8px)}}
+
+/* ═══════════════════════════ ABOUT ═══════════════════════════ */
+.info-row{display:flex;align-items:flex-start;gap:12px;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px}
+.il{color:var(--dim);min-width:80px;flex-shrink:0}
+blockquote{border-left:3px solid var(--green);padding-left:16px;color:var(--dim);font-style:italic;margin:16px 0;font-size:13px;line-height:1.8}
+
+/* ═══════════════════════════ SKILLS ═══════════════════════════ */
+.skill-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;margin-bottom:22px}
+.skill-box{background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:12px;transition:border-color .3s}
+.skill-box:hover{border-color:var(--green)}
+.skill-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;font-size:13px}
+.skill-lv{color:var(--green);font-size:11px}
+.bar-bg{height:6px;background:var(--bg);border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;width:0%;transition:width 1.5s cubic-bezier(.4,0,.2,1);background:linear-gradient(90deg,var(--green),var(--green2))}
+
+/* ═══════════════════════════ QUESTS ═══════════════════════════ */
+.quest-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.quest-name{font-size:14px;color:var(--text)}
+.quest-tag{font-size:10px;padding:2px 9px;border-radius:3px;border:1px solid var(--green);color:var(--green);background:rgba(0,255,65,.07)}
+.quest-bar{height:9px;background:var(--bg);border-radius:4px;overflow:hidden;margin-bottom:12px}
+.quest-fill{height:100%;border-radius:4px;width:0%;transition:width 1.5s cubic-bezier(.4,0,.2,1);animation:qglow 2s ease-in-out infinite}
+@keyframes qglow{0%,100%{box-shadow:0 0 5px currentColor}50%{box-shadow:0 0 14px currentColor}}
+.quest-list{font-size:12px;color:var(--dim);line-height:1.9}
+.quest-list li{list-style:none;padding:1px 0}
+.quest-list li::before{content:'► ';color:var(--green)}
+
+/* ═══════════════════════════ STATS ═══════════════════════════ */
+.stats-2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.stats-2 img,.stat-full{width:100%;border-radius:6px;border:1px solid var(--border);transition:border-color .3s;display:block;margin-bottom:14px}
+.stats-2 img:hover,.stat-full:hover{border-color:var(--green)}
+
+/* ═══════════════════════════ CONTACT ═══════════════════════════ */
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.cc{display:flex;align-items:center;gap:14px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:16px;text-decoration:none;color:var(--text);transition:border-color .3s,box-shadow .3s,transform .2s}
+.cc:hover{border-color:var(--green);box-shadow:0 0 18px rgba(0,255,65,.12);transform:translateY(-2px);color:var(--text)}
+.cc-i{font-size:24px}
+.cc-l{font-size:11px;color:var(--dim)}
+.cc-v{font-size:12px;color:var(--green)}
+
+/* ═══════════════════════════ FOOTER ═══════════════════════════ */
+footer{position:relative;z-index:1;text-align:center;padding:60px 20px 80px;border-top:1px solid var(--border)}
+.foot-row{display:flex;justify-content:center;align-items:flex-end;gap:50px;margin-bottom:28px;flex-wrap:wrap}
+.foot-char{display:flex;flex-direction:column;align-items:center;gap:8px;font-size:11px;color:var(--dim)}
+
+@media(max-width:720px){
+  .stats-2{grid-template-columns:1fr}
+  .contact-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- ░ MATRIX BG ░ -->
+<canvas id="matrix"></canvas>
+
+<!-- ══════════════════════════════════════════════════════════════════
+   XLR8 — walks on the LEFT side of the page, always visible
+══════════════════════════════════════════════════════════════════ -->
+<div class="walker" id="xlr8-walker">
+  <div class="walker-label" id="xlr8-label">⚡ XLR8</div>
+
+  <!-- Full XLR8 character SVG: blue raptor alien facing RIGHT (into page) -->
+  <svg id="xlr8-svg" width="115" height="175" viewBox="0 0 115 175">
+
+    <!-- Speed lines behind XLR8 (he's running from left toward content) -->
+    <g class="xlr8-speed-line">
+      <line x1="0" y1="58"  x2="34" y2="58"  stroke="#1e78f0" stroke-width="3.5" stroke-linecap="round" opacity=".9"/>
+      <line x1="4" y1="70"  x2="28" y2="70"  stroke="#58a6ff" stroke-width="2.5" stroke-linecap="round" opacity=".7"/>
+      <line x1="0" y1="82"  x2="34" y2="82"  stroke="#1e78f0" stroke-width="3.5" stroke-linecap="round" opacity=".9"/>
+      <line x1="8" y1="94"  x2="26" y2="94"  stroke="#58a6ff" stroke-width="2"   stroke-linecap="round" opacity=".5"/>
+      <line x1="0" y1="106" x2="30" y2="106" stroke="#1e78f0" stroke-width="2.5" stroke-linecap="round" opacity=".6"/>
+    </g>
+
+    <!-- Full character body (wraps for bob animation) -->
+    <g class="xlr8-body-wrap">
+
+      <!-- Tail (behind, to the left) -->
+      <g class="xlr8-tail">
+        <path d="M 50 115 C 30 120 20 130 28 148" stroke="#1050b0" stroke-width="10" fill="none" stroke-linecap="round"/>
+        <path d="M 28 148 L 18 158 M 28 148 L 32 160" stroke="#1050b0" stroke-width="6" fill="none" stroke-linecap="round"/>
+      </g>
+
+      <!-- Body main mass -->
+      <ellipse cx="68" cy="100" rx="24" ry="34" fill="#1e78f0"/>
+
+      <!-- Neck -->
+      <ellipse cx="76" cy="68" rx="14" ry="18" fill="#1e78f0"/>
+
+      <!-- Head (helmet shape) -->
+      <ellipse cx="82" cy="48" rx="22" ry="26" fill="#1e78f0"/>
+
+      <!-- Visor (green-cyan) -->
+      <ellipse cx="88" cy="44" rx="16" ry="12" fill="#00d4ff" opacity=".9"/>
+      <!-- Visor shine -->
+      <ellipse cx="83" cy="40" rx="7"  ry="5"  fill="white" opacity=".45"/>
+
+      <!-- Eye glow behind visor -->
+      <ellipse cx="90" cy="44" rx="5"  ry="4"  fill="#00ffe7" opacity=".7"/>
+
+      <!-- Back fin/ridge on head -->
+      <path d="M 70 30 L 60 10 L 68 28" fill="#1050b0"/>
+      <path d="M 74 25 L 66  5 L 72 23" fill="#1560c8"/>
+
+      <!-- Shoulder/arm hint (right arm forward) -->
+      <ellipse cx="85" cy="92" rx="8" ry="14" fill="#1560c8" transform="rotate(-20,85,92)"/>
+
+      <!-- Claws on arm -->
+      <line x1="91" y1="104" x2="98" y2="112" stroke="#0d3c8a" stroke-width="3" stroke-linecap="round"/>
+      <line x1="89" y1="106" x2="96" y2="116" stroke="#0d3c8a" stroke-width="3" stroke-linecap="round"/>
+
+      <!-- LEGS (pivot from hip joint at ~y=118) -->
+      <g class="xlr8-leg-l">
+        <!-- Upper leg left -->
+        <rect x="52" y="118" width="14" height="28" rx="7" fill="#1560c8"/>
+        <!-- Lower leg / foot left -->
+        <rect x="49" y="143" width="18" height="12" rx="5" fill="#0e3a7a"/>
+        <!-- Foot claw left -->
+        <path d="M 49 155 L 42 162 M 52 155 L 50 164 M 55 155 L 57 163" stroke="#0a2a5a" stroke-width="2.5" stroke-linecap="round"/>
+      </g>
+      <g class="xlr8-leg-r">
+        <!-- Upper leg right -->
+        <rect x="70" y="118" width="14" height="28" rx="7" fill="#1560c8"/>
+        <!-- Lower leg / foot right -->
+        <rect x="67" y="143" width="18" height="12" rx="5" fill="#0e3a7a"/>
+        <!-- Foot claw right -->
+        <path d="M 67 155 L 60 162 M 70 155 L 68 164 M 73 155 L 75 163" stroke="#0a2a5a" stroke-width="2.5" stroke-linecap="round"/>
+      </g>
+
+    </g><!-- /body-wrap -->
+  </svg>
+</div><!-- /xlr8-walker -->
+
+
+<!-- ══════════════════════════════════════════════════════════════════
+   CREEPER — walks on the RIGHT side of the page
+══════════════════════════════════════════════════════════════════ -->
+<div class="walker" id="creeper-walker">
+  <div class="walker-label" id="creeper-label">💚 Creeper</div>
+
+  <!-- Full Creeper character SVG: minecraft pixel style, facing LEFT (toward content) -->
+  <svg id="creeper-svg" width="88" height="168" viewBox="0 0 88 168" style="image-rendering:pixelated">
+    <g class="creeper-body-wrap">
+
+      <!-- HEAD (pixel art, 8x8 scale = 10px per pixel, 8 pixels wide = 80px) -->
+      <rect x="4"  y="0"  width="80" height="80" fill="#4a7c3f"/>
+
+      <!-- Eye Left (pixels) -->
+      <rect x="12" y="16" width="20" height="24" fill="#111"/>
+      <!-- Eye Right (pixels) -->
+      <rect x="56" y="16" width="20" height="24" fill="#111"/>
+
+      <!-- Nose bridge -->
+      <rect x="34" y="34" width="20" height="12" fill="#3d6a35"/>
+
+      <!-- Mouth — classic N shape -->
+      <rect x="22" y="46" width="44" height="10" fill="#111"/>
+      <rect x="22" y="56" width="14" height="12" fill="#111"/>
+      <rect x="52" y="56" width="14" height="12" fill="#111"/>
+      <rect x="22" y="68" width="44" height="10" fill="#111"/>
+
+      <!-- BODY -->
+      <rect x="20" y="82"  width="48" height="42" fill="#4a7c3f"/>
+      <!-- Body shading -->
+      <rect x="20" y="82"  width="10" height="42" fill="#3d6a35" opacity=".5"/>
+      <rect x="58" y="82"  width="10" height="42" fill="#2e5228" opacity=".4"/>
+
+      <!-- LEGS — 4 legs, 2 visible from front -->
+      <!-- Front-Left leg -->
+      <g class="creeper-leg-fl">
+        <rect x="20" y="124" width="20" height="36" fill="#4a7c3f"/>
+        <rect x="20" y="124" width="6"  height="36" fill="#3d6a35" opacity=".5"/>
+        <!-- foot -->
+        <rect x="16" y="156" width="26" height="10" fill="#3a6232"/>
+      </g>
+      <!-- Front-Right leg -->
+      <g class="creeper-leg-fr">
+        <rect x="48" y="124" width="20" height="36" fill="#4a7c3f"/>
+        <rect x="48" y="124" width="6"  height="36" fill="#3d6a35" opacity=".5"/>
+        <!-- foot -->
+        <rect x="46" y="156" width="26" height="10" fill="#3a6232"/>
+      </g>
+      <!-- Back-Left leg (slightly darker, behind) -->
+      <g class="creeper-leg-bl" style="opacity:.7">
+        <rect x="14" y="126" width="18" height="32" fill="#3d6a35"/>
+        <rect x="12" y="154" width="22" height="8"  fill="#2e5228"/>
+      </g>
+      <!-- Back-Right leg -->
+      <g class="creeper-leg-br" style="opacity:.7">
+        <rect x="56" y="126" width="18" height="32" fill="#3d6a35"/>
+        <rect x="54" y="154" width="22" height="8"  fill="#2e5228"/>
+      </g>
+
+    </g>
+  </svg>
+</div><!-- /creeper-walker -->
+
+
+<!-- ══════════════════════════════════════════════════════════════════
+   ALIEN X — floats on right, appears on quest section
+══════════════════════════════════════════════════════════════════ -->
+<div class="walker" id="alienx-walker">
+  <div class="walker-label">🌌 Alien X</div>
+  <svg width="90" height="150" viewBox="0 0 70 130" class="ax-wrap">
+    <!-- cosmic aura -->
+    <ellipse cx="35" cy="60" rx="33" ry="58" fill="none" stroke="#6b2fd4" stroke-width="2" class="ax-aura"/>
+    <ellipse cx="35" cy="60" rx="28" ry="50" fill="none" stroke="#a371f7" stroke-width="1" class="ax-aura" style="animation-delay:.4s"/>
+    <!-- head -->
+    <ellipse cx="35" cy="20" rx="16" ry="18" fill="#08082a"/>
+    <!-- body -->
+    <rect x="20" y="34" width="30" height="36" rx="6" fill="#08082a"/>
+    <!-- arms -->
+    <rect x="2"  y="36" width="20" height="8" rx="4" fill="#08082a"/>
+    <rect x="48" y="36" width="20" height="8" rx="4" fill="#08082a"/>
+    <!-- legs -->
+    <rect x="20" y="68" width="12" height="28" rx="5" fill="#08082a"/>
+    <rect x="38" y="68" width="12" height="28" rx="5" fill="#08082a"/>
+    <!-- star constellation on body -->
+    <g class="ax-stars" fill="white">
+      <circle cx="29" cy="18" r="2"/>
+      <circle cx="40" cy="22" r="1.5"/>
+      <circle cx="27" cy="40" r="2"/>
+      <circle cx="38" cy="48" r="1.5"/>
+      <circle cx="30" cy="56" r="2"/>
+      <circle cx="43" cy="38" r="2"/>
+      <circle cx="25" cy="50" r="1.5"/>
+      <circle cx="35" cy="62" r="1.5"/>
+      <circle cx="45" cy="58" r="2"/>
+    </g>
+    <!-- eye whites -->
+    <ellipse cx="30" cy="18" rx="5" ry="6" fill="white" opacity=".9"/>
+    <ellipse cx="40" cy="18" rx="5" ry="6" fill="white" opacity=".9"/>
+    <!-- pupils -->
+    <circle cx="30" cy="19" r="2.5" fill="#6b2fd4"/>
+    <circle cx="40" cy="19" r="2.5" fill="#6b2fd4"/>
+  </svg>
+</div>
+
+
+<!-- ░ NAV ░ -->
+<nav>
+  <div class="nav-logo">
+    <svg width="20" height="20" viewBox="0 0 50 50">
+      <circle cx="25" cy="25" r="24" fill="#111" stroke="#00ff41" stroke-width="1.5"/>
+      <circle cx="25" cy="25" r="17" fill="#00cc33"/>
+      <g class="spin" style="transform-origin:25px 25px">
+        <polygon points="25,10 32,20 44,22 35,32 37,44 25,38 13,44 15,32 6,22 18,20" fill="#111" opacity=".9"/>
+      </g>
+    </svg>
+    honeysayswork-oss
+  </div>
+  <ul class="nav-links">
+    <li><a href="#hero">Home</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#quests">Quests</a></li>
+    <li><a href="#stats">Stats</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+</nav>
+
+
+<!-- ════════════ HERO ════════════ -->
+<section id="hero">
+  <svg width="130" height="130" viewBox="0 0 100 100" class="glow" style="margin-bottom:22px">
+    <circle cx="50" cy="50" r="48" fill="#111" stroke="#00ff41" stroke-width="2.5"/>
+    <circle cx="50" cy="50" r="40" fill="#00cc33"/>
+    <circle cx="50" cy="50" r="30" fill="#009922"/>
+    <g class="spin" style="transform-origin:50px 50px">
+      <polygon points="50,20 62,38 82,41 66,58 70,78 50,66 30,78 34,58 18,41 38,38" fill="#07070f"/>
+    </g>
+    <circle cx="50" cy="50" r="8" fill="#00ff41"/>
+    <circle cx="50" cy="50" r="4" fill="#fff" opacity=".6"/>
+  </svg>
+
+  <div style="font-size:11px;color:var(--green);letter-spacing:4px;margin-bottom:12px">[ ALIEN SIGNATURE DETECTED ]</div>
+  <h1 class="hero-name">HONEY KUMAR</h1>
+  <div class="hero-alias">› honeysayswork-oss ‹</div>
+  <p class="hero-sub">
+    B.Tech CSE (AI/ML) · Newton School of Technology (ADYPU), Pune<br/>
+    App Developer · Open Source Contributor · GSoC Aspirant 🚀
+  </p>
+
+  <div class="term">
+    <span class="term-p">$ </span><span id="typed"></span>
+  </div>
+
+  <div class="hero-badges">
+    <span class="badge bg">⚡ App Developer</span>
+    <span class="badge bb">🌐 Open Source</span>
+    <span class="badge bo">🎯 GSoC Aspirant</span>
+    <span class="badge bp">🌌 2 AM Coder</span>
+    <span class="badge bg">📱 Android · Flutter</span>
+    <span class="badge bb">🤝 Trust First</span>
+  </div>
+
+  <div class="shint">
+    <span>scroll — your companions are walking with you</span>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00ff41" stroke-width="2"><path d="M12 5v14M5 12l7 7 7-7"/></svg>
+  </div>
+</section>
+
+
+<!-- ════════════ ABOUT ════════════ -->
+<section id="about">
+  <div class="sec-eyebrow reveal">01 // ABOUT</div>
+  <h2 class="sec-title reveal">📖 Profile <span>Book</span></h2>
+
+  <div class="mc-card wood reveal">
+    <div class="mc-head">📖 HONEY'S PROFILE BOOK — Crafted at 2 AM</div>
+    <div class="mc-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 32px">
+        <div>
+          <div class="info-row"><span class="il">Name</span><span>Honey Kumar</span></div>
+          <div class="info-row"><span class="il">Alias</span><span style="color:var(--green)">honeysayswork-oss</span></div>
+          <div class="info-row"><span class="il">School</span><span>NST — ADYPU, Pune</span></div>
+          <div class="info-row"><span class="il">Major</span><span>B.Tech CSE · AI/ML</span></div>
+        </div>
+        <div>
+          <div class="info-row"><span class="il">City</span><span>Pune, India 🇮🇳</span></div>
+          <div class="info-row"><span class="il">Mode</span><span>Always Building ⚙️</span></div>
+          <div class="info-row"><span class="il">Peak</span><span style="color:var(--orange)">2 AM Coder 🌙</span></div>
+          <div class="info-row"><span class="il">Fuel</span><span>Merged PRs + Coffee ☕</span></div>
+        </div>
+      </div>
+      <blockquote style="margin-top:20px">
+        "I'm happiest when creating from scratch — whether it's a mobile app, a web project, or a messy problem that finally clicks at 2 AM. App development is home. Open source is the journey."
+      </blockquote>
+      <blockquote>
+        "Trust is what good teams, good code, and good communities are built on." 🛡️
+      </blockquote>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════ SKILLS ════════════ -->
+<section id="skills">
+  <div class="sec-eyebrow reveal">02 // SKILLS</div>
+  <h2 class="sec-title reveal">🎒 Tech <span>Hotbar</span></h2>
+  <div class="mc-card stone reveal">
+    <div class="mc-head">🛠️ EQUIPPED — HOTBAR LOADED</div>
+    <div class="mc-body">
+      <div class="skill-grid" id="sg"></div>
+      <img src="https://skillicons.dev/icons?i=python,js,ts,html,css,nodejs,cpp,c&theme=dark&perline=8" style="border-radius:6px;margin-bottom:10px;width:100%"/>
+      <img src="https://skillicons.dev/icons?i=androidstudio,flutter,dart,git,github,vscode,linux,firebase&theme=dark&perline=8" style="border-radius:6px;width:100%"/>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════ QUESTS ════════════ -->
+<section id="quests">
+  <div class="sec-eyebrow reveal">03 // GOALS</div>
+  <h2 class="sec-title reveal">📜 Active <span>Quests</span></h2>
+
+  <div class="mc-card diamond reveal">
+    <div class="mc-head">🌐 QUEST #1 — GOOGLE SUMMER OF CODE</div>
+    <div class="mc-body">
+      <div class="quest-top"><span class="quest-name">🎯 GSoC Contributor</span><span class="quest-tag">IN PROGRESS</span></div>
+      <div class="quest-bar"><div class="quest-fill" data-w="50" style="background:linear-gradient(90deg,#58a6ff,#1e78f0);color:#1e78f0"></div></div>
+      <ul class="quest-list">
+        <li>Get selected into Google Summer of Code</li>
+        <li>Build real-world impact through open source</li>
+        <li>Earn community credibility & experience</li>
+        <li>Reward: Alien X power tier unlocked 🌌</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="mc-card gold reveal">
+    <div class="mc-head">📱 QUEST #2 — APP DEVELOPER (MASTER TIER)</div>
+    <div class="mc-body">
+      <div class="quest-top"><span class="quest-name">📱 App Developer</span><span class="quest-tag">IN PROGRESS</span></div>
+      <div class="quest-bar"><div class="quest-fill" data-w="65" style="background:linear-gradient(90deg,#f0a500,#c47800);color:#f0a500"></div></div>
+      <ul class="quest-list">
+        <li>Path A → Android Native: Kotlin + Jetpack Compose</li>
+        <li>Path B → Cross-Platform: Flutter + Dart</li>
+        <li>Path C → Web Apps: React + Node.js PWA</li>
+        <li>Goal: Ship apps people actually use 🚀</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="mc-card grass reveal">
+    <div class="mc-head">🌍 QUEST #3 — OPEN SOURCE LEGEND</div>
+    <div class="mc-body">
+      <div class="quest-top"><span class="quest-name">🧱 Open Source Contributor</span><span class="quest-tag">ACTIVE</span></div>
+      <div class="quest-bar"><div class="quest-fill" data-w="40" style="background:linear-gradient(90deg,var(--green),var(--green2));color:var(--green)"></div></div>
+      <ul class="quest-list">
+        <li>Contribute to real repositories globally</li>
+        <li>Collaborate with developers worldwide</li>
+        <li>Get PRs merged — best feeling ever 🏆</li>
+        <li>Build trust through reliable, consistent code 🛡️</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════ STATS ════════════ -->
+<section id="stats">
+  <div class="sec-eyebrow reveal">04 // ANALYTICS</div>
+  <h2 class="sec-title reveal">📊 GitHub <span>Stats</span></h2>
+  <div class="mc-card nether reveal">
+    <div class="mc-head">📊 COMPILING STATS...</div>
+    <div class="mc-body">
+      <div class="stats-2">
+        <img src="https://github-readme-stats.vercel.app/api?username=honeysayswork-oss&show_icons=true&theme=github_dark&include_all_commits=true&count_private=true&border_color=00ff41&icon_color=00ff41&title_color=00ff41" alt="Stats"/>
+        <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=honeysayswork-oss&layout=compact&theme=github_dark&border_color=00ff41&title_color=00ff41&langs_count=8" alt="Langs"/>
+      </div>
+      <img class="stat-full" src="https://github-readme-streak-stats.herokuapp.com/?user=honeysayswork-oss&theme=github-dark-blue&border=00ff41&ring=00ff41&fire=ff6b35&currStreakLabel=00ff41&background=0d1117" alt="Streak"/>
+      <img class="stat-full" src="https://github-profile-trophy.vercel.app/?username=honeysayswork-oss&theme=darkhub&no-frame=true&margin-w=10&row=1&column=7" alt="Trophies"/>
+      <img class="stat-full" src="https://github-readme-activity-graph.vercel.app/graph?username=honeysayswork-oss&theme=github-compact&bg_color=0d1117&color=00ff41&line=00ff41&point=ffffff&area=true&border_color=00ff41" alt="Activity"/>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════ CONTACT ════════════ -->
+<section id="contact">
+  <div class="sec-eyebrow reveal">05 // CONTACT</div>
+  <h2 class="sec-title reveal">📡 Signal <span>Portal</span></h2>
+  <div class="mc-card diamond reveal">
+    <div class="mc-head">📡 OPEN COMMUNICATION CHANNEL</div>
+    <div class="mc-body">
+      <div class="contact-grid">
+        <a href="mailto:honeysayswork@gmail.com" class="cc">
+          <span class="cc-i">📧</span><div><div class="cc-l">EMAIL</div><div class="cc-v">honeysayswork@gmail.com</div></div>
+        </a>
+        <a href="https://www.linkedin.com/in/honey-kumar-87ba15395/" target="_blank" class="cc">
+          <span class="cc-i">💼</span><div><div class="cc-l">LINKEDIN</div><div class="cc-v">honey-kumar-87ba15395</div></div>
+        </a>
+        <a href="https://github.com/honeysayswork-oss" target="_blank" class="cc">
+          <span class="cc-i">🐙</span><div><div class="cc-l">GITHUB</div><div class="cc-v">honeysayswork-oss</div></div>
+        </a>
+        <div class="cc">
+          <span class="cc-i">🌙</span><div><div class="cc-l">PEAK HOURS</div><div class="cc-v">2 AM → 4 AM (best code drops)</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ════════════ FOOTER ════════════ -->
+<footer>
+  <div class="foot-row">
+
+    <!-- XLR8 mini footer -->
+    <div class="foot-char">
+      <svg width="70" height="100" viewBox="0 0 115 175" class="xlr8-body-wrap" style="overflow:visible">
+        <ellipse cx="68" cy="100" rx="24" ry="34" fill="#1e78f0"/>
+        <ellipse cx="76" cy="68"  rx="14" ry="18" fill="#1e78f0"/>
+        <ellipse cx="82" cy="48"  rx="22" ry="26" fill="#1e78f0"/>
+        <ellipse cx="88" cy="44"  rx="16" ry="12" fill="#00d4ff" opacity=".9"/>
+        <g class="xlr8-leg-l"><rect x="52" y="118" width="14" height="28" rx="7" fill="#1560c8"/></g>
+        <g class="xlr8-leg-r"><rect x="70" y="118" width="14" height="28" rx="7" fill="#1560c8"/></g>
+      </svg>
+      <span>⚡ XLR8 says hi</span>
+    </div>
+
+    <!-- Centre quote -->
+    <div style="text-align:center;padding:0 20px">
+      <div style="font-size:15px;color:var(--green);margin-bottom:8px">Trust. Code. Build. Ship. Repeat.</div>
+      <div style="font-size:12px;color:var(--dim)">~ honeysayswork-oss</div>
+      <div style="font-size:11px;color:var(--dim);margin-top:8px">© 2025 Honey Kumar · All aliens reserved 👽</div>
+      <div style="font-size:11px;color:var(--dim);margin-top:4px">Built with 💚 and way too much caffeine</div>
+    </div>
+
+    <!-- Creeper mini footer -->
+    <div class="foot-char">
+      <svg width="56" height="100" viewBox="0 0 88 168" class="creeper-body-wrap" style="image-rendering:pixelated;overflow:visible">
+        <rect x="4"  y="0"  width="80" height="80" fill="#4a7c3f"/>
+        <rect x="12" y="16" width="20" height="24" fill="#111"/>
+        <rect x="56" y="16" width="20" height="24" fill="#111"/>
+        <rect x="34" y="34" width="20" height="12" fill="#3d6a35"/>
+        <rect x="22" y="46" width="44" height="10" fill="#111"/>
+        <rect x="22" y="56" width="14" height="12" fill="#111"/>
+        <rect x="52" y="56" width="14" height="12" fill="#111"/>
+        <rect x="22" y="68" width="44" height="10" fill="#111"/>
+        <rect x="20" y="82" width="48" height="42" fill="#4a7c3f"/>
+        <g class="creeper-leg-fl"><rect x="20" y="124" width="20" height="36" fill="#4a7c3f"/></g>
+        <g class="creeper-leg-fr"><rect x="48" y="124" width="20" height="36" fill="#4a7c3f"/></g>
+      </svg>
+      <span>💚 sssss... (friendly)</span>
+    </div>
+
+  </div>
+</footer>
+
+
+<!-- ════════════════════════════════════════════
+     JAVASCRIPT
+════════════════════════════════════════════ -->
+<script>
+/* ── MATRIX RAIN ── */
+(()=>{
+  const c=document.getElementById('matrix'),x=c.getContext('2d');
+  const r=()=>{c.width=innerWidth;c.height=innerHeight};r();
+  addEventListener('resize',r);
+  const ch='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789⚡🧬</>{}# git push pull';
+  const fs=14; let cols,drops;
+  const ini=()=>{cols=Math.floor(c.width/fs);drops=Array(cols).fill(1)};
+  ini(); addEventListener('resize',ini);
+  setInterval(()=>{
+    x.fillStyle='rgba(13,17,23,.055)';x.fillRect(0,0,c.width,c.height);
+    x.fillStyle='#00ff41';x.font=`${fs}px monospace`;
+    for(let i=0;i<drops.length;i++){
+      x.fillText(ch[Math.floor(Math.random()*ch.length)],i*fs,drops[i]*fs);
+      if(drops[i]*fs>c.height&&Math.random()>.975)drops[i]=0;
+      drops[i]++;
+    }
+  },55);
+})();
+
+/* ── TYPING ANIMATION ── */
+(()=>{
+  const lines=[
+    'omnitrix --boot --mode=developer',
+    'scan --dna  →  MATCH: honey_kumar ✓',
+    'git clone github.com/honeysayswork-oss',
+    'Loading skills...  [████████] 100%',
+    'Loading quests...  [▶▶▶▶▶░░░]  65%',
+    'STATUS: READY TO BUILD  🟢',
+  ];
+  const el=document.getElementById('typed');
+  let li=0,ci=0;
+  const next=()=>{
+    if(li>=lines.length)li=0;
+    const line=lines[li];
+    if(ci<line.length){el.textContent+=line[ci++];setTimeout(next,45+Math.random()*25);}
+    else{ci=0;li++;el.textContent='';setTimeout(next,1400);}
+  };
+  setTimeout(next,700);
+})();
+
+/* ── SKILLS ── */
+[
+  {n:'Python',         lv:'LVL 7',p:75,i:'🐍'},
+  {n:'JavaScript / TS',lv:'LVL 6',p:65,i:'🌐'},
+  {n:'HTML & CSS',     lv:'LVL 7',p:76,i:'🎨'},
+  {n:'Node.js',        lv:'LVL 5',p:55,i:'🔧'},
+  {n:'C / C++',        lv:'LVL 4',p:46,i:'⚙️'},
+  {n:'Android/Kotlin', lv:'LVL 5',p:56,i:'📱'},
+  {n:'Flutter / Dart', lv:'LVL 4',p:46,i:'🦋'},
+  {n:'Git & GitHub',   lv:'LVL 7',p:78,i:'🐙'},
+].forEach(s=>{
+  document.getElementById('sg').innerHTML+=`<div class="skill-box">
+    <div class="skill-row"><span>${s.i} ${s.n}</span><span class="skill-lv">${s.lv}</span></div>
+    <div class="bar-bg"><div class="bar-fill" data-p="${s.p}"></div></div>
+  </div>`;
+});
+
+/* ── SCROLL REVEAL + BAR ANIMATIONS ── */
+new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{
+    if(!e.isIntersecting)return;
+    e.target.classList.add('show');
+    e.target.querySelectorAll('.bar-fill').forEach(b=>b.style.width=b.dataset.p+'%');
+    e.target.querySelectorAll('.quest-fill').forEach(b=>b.style.width=b.dataset.w+'%');
+  });
+},{threshold:.12}).observe.apply(null,[...document.querySelectorAll('.reveal')].map(el=>{
+  new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('show');e.target.querySelectorAll('.bar-fill').forEach(b=>b.style.width=b.dataset.p+'%');e.target.querySelectorAll('.quest-fill').forEach(b=>b.style.width=b.dataset.w+'%')}});
+  },{threshold:.12}).observe(el);return el;
+}));
+
+/* ── SCROLL SPEED → WALK SPEED (characters walk faster when you scroll fast) ── */
+let lastY=0,ticking=false;
+const root=document.documentElement;
+
+addEventListener('scroll',()=>{
+  if(ticking)return;
+  ticking=true;
+  requestAnimationFrame(()=>{
+    const dy=Math.abs(scrollY-lastY);
+    // The faster you scroll, the faster they walk (min 0.15s, max 0.9s)
+    const dur=Math.max(0.15,Math.min(0.9,0.55-(dy*0.012)));
+    root.style.setProperty('--walk-dur',dur+'s');
+    lastY=scrollY;
+    ticking=false;
+  });
+},{passive:true});
+
+/* ── SCROLL SECTION REACTIONS ── */
+const sects={
+  hero    :document.getElementById('hero'),
+  about   :document.getElementById('about'),
+  skills  :document.getElementById('skills'),
+  quests  :document.getElementById('quests'),
+  stats   :document.getElementById('stats'),
+  contact :document.getElementById('contact'),
+};
+const xlr8Label=document.getElementById('xlr8-label');
+const creeperLabel=document.getElementById('creeper-label');
+const alienxWalker=document.getElementById('alienx-walker');
+
+addEventListener('scroll',()=>{
+  const y=scrollY+innerHeight*0.5;
+
+  // Alien X floats in during quests section only
+  const qTop=sects.quests.offsetTop;
+  const qBot=qTop+sects.quests.offsetHeight;
+  alienxWalker.classList.toggle('visible', y>=qTop && y<=qBot+200);
+
+  // Label reactions
+  if(y<sects.about.offsetTop){
+    xlr8Label.textContent='⚡ XLR8 — RUNNING!';
+    creeperLabel.textContent='💚 Creeper — walking';
+  } else if(y<sects.skills.offsetTop){
+    xlr8Label.textContent='⚡ XLR8 — curious';
+    creeperLabel.textContent='💚 Creeper — hmm…';
+  } else if(y<sects.quests.offsetTop){
+    xlr8Label.textContent='⚡ XLR8 — SPEEDING UP';
+    creeperLabel.textContent='💚 Creeper — following';
+  } else if(y<sects.stats.offsetTop){
+    xlr8Label.textContent='⚡ XLR8 — GOAL LOCKED';
+    creeperLabel.textContent='💚 Creeper — excited!';
+  } else {
+    xlr8Label.textContent='⚡ XLR8 — almost there';
+    creeperLabel.textContent='💚 sssss… 💣';
+  }
+},{passive:true});
+
+/* ── NAV ACTIVE ── */
+const navAs=document.querySelectorAll('.nav-links a');
+addEventListener('scroll',()=>{
+  let cur='';
+  document.querySelectorAll('section[id]').forEach(s=>{if(scrollY>=s.offsetTop-110)cur=s.id;});
+  navAs.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+cur));
+},{passive:true});
+</script>
+</body>
+</html>
